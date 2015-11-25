@@ -1,4 +1,5 @@
-﻿using Rocket.Unturned.Player;
+﻿//Original Author: ApokPT - https://github.com/ApokPT
+using Rocket.Unturned.Player;
 using System;
 using System.Linq;
 using Rocket.Unturned.Chat;

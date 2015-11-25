@@ -1,4 +1,5 @@
-﻿using Rocket.API;
+﻿//Original Author: ApokPT - https://github.com/ApokPT
+using Rocket.API;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 

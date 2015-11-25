@@ -1,4 +1,5 @@
-﻿using Steamworks;
+﻿//Original Author: ApokPT - https://github.com/ApokPT
+using Steamworks;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -39,13 +40,14 @@ namespace ApokPT.RocketPlugins
 
         //DEBUG, Injection error when loading Rocket.
         /**
-        setJail(null, cell.Name.ToLower(), new Vector3(Convert.ToSingle(cell.X), Convert.ToSingle(cell.Y), Convert.ToSingle(cell.Z)));
+            setJail(null, cell.Name.ToLower(), new Vector3(Convert.ToSingle(cell.X), Convert.ToSingle(cell.Y), Convert.ToSingle(cell.Z)));
         **/
         private void injectConfiCells()
         {
             string Name = "Test";
             //foreach (CellLoc cell in Configuration.Instance.Cells)
             //{
+                //Test cell: Name X,Y,Z
             setJail(null, Name.ToLower(), new Vector3(Convert.ToSingle(100), Convert.ToSingle(100), Convert.ToSingle(100)));
             //}
         }
@@ -166,7 +168,7 @@ namespace ApokPT.RocketPlugins
 
 
         // Player Methods
-
+        //Adding a player
         internal void addPlayer(IRocketPlayer caller, string playerName, string jailName = "", uint jailTime = 0)
         {
 
@@ -223,6 +225,7 @@ namespace ApokPT.RocketPlugins
             }
         }
 
+        //Removing a player
         internal void removePlayer(UnturnedPlayer caller, string playerName)
         {
             UnturnedPlayer target;
@@ -251,6 +254,7 @@ namespace ApokPT.RocketPlugins
 
         }
 
+        //List players
         internal void listPlayers(IRocketPlayer caller)
         {
             if (players.Count == 0)
@@ -276,8 +280,8 @@ namespace ApokPT.RocketPlugins
         }
 
 
-        // Jail Methods 
-
+        // Jail Methods
+        //Set Jail
         internal void setJail(UnturnedPlayer caller, string jailName, UnityEngine.Vector3 location)
         {
             if (caller != null)
@@ -298,6 +302,7 @@ namespace ApokPT.RocketPlugins
             cells.Add(jailName.ToLower(), new Cell(jailName, location));
         }
 
+        //Unset Jail
         internal void unsetJail(IRocketPlayer caller, string jailName)
         {
             if (!cells.ContainsKey(jailName.ToLower()))
@@ -321,7 +326,7 @@ namespace ApokPT.RocketPlugins
             }
         }
 
-
+        //TP to a cell
         internal void teleportToCell(UnturnedPlayer caller, string jailName)
         {
             if (!cells.ContainsKey(jailName.ToLower()))
@@ -335,7 +340,7 @@ namespace ApokPT.RocketPlugins
             }
         }
 
-
+        //List Jails
         internal void listJails(IRocketPlayer caller)
         {
             if (cells.Count == 0)
@@ -360,6 +365,8 @@ namespace ApokPT.RocketPlugins
         }
 
         // Arrest Methods
+        //Move selected player to jail
+        /** TODO: Research if - player.Inventory.Clear() - is still available. **/
         private void movePlayerToJail(UnturnedPlayer player, Cell jail)
         {
             //player.Inventory.Clear();
@@ -371,7 +378,7 @@ namespace ApokPT.RocketPlugins
             //player.Inventory.Clear();
             player.Teleport(sentence.Location, player.Rotation);
         }
-
+        /*******************************************************/
         // Translations
         public override TranslationList DefaultTranslations
         {
