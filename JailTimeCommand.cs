@@ -1,50 +1,83 @@
-﻿using Rocket.Unturned;
-using Rocket.Unturned.Commands;
-using Rocket.Unturned.Player;
+﻿using Rocket.Unturned.Player;
 using System;
 using System.Linq;
+using Rocket.Unturned.Chat;
+using Rocket.API;
+using System.Collections.Generic;
 
 namespace ApokPT.RocketPlugins
 {
     public class JailTimeCommand : IRocketCommand
     {
-        public void Execute(RocketPlayer caller, string[] cmd)
+        public bool AllowFromConsole
         {
+            get { return true; }
+        }
 
-            string command = String.Join(" ", cmd);
+        public string Name
+        {
+            get { return "jail"; }
+        }
 
-            if (!caller.IsAdmin && !JailTime.Instance.Configuration.Enabled) return;
+        public string Help
+        {
+            get { return "Send players to Jail!"; }
+        }
 
-            if (String.IsNullOrEmpty(command.Trim()))
+        public string Syntax
+        {
+            get { return "NULL"; }
+        }
+
+        public List<string> Aliases
+        {
+            get { return new List<string>(); }
+        }
+
+        public List<string> Permissions
+        {
+            get { return new List<string>() { "JailTime.jail" }; }
+        }
+
+
+        public void Execute(IRocketPlayer caller, string[] command)
+        {
+            string commandString = String.Join(" ", command);
+
+            UnturnedPlayer pCaller = (UnturnedPlayer)caller;
+
+            if (pCaller.IsAdmin && !JailTime.Instance.Configuration.Instance.Enabled) return;
+
+            if (String.IsNullOrEmpty(commandString.Trim()))
             {
-                RocketChat.Say(caller, JailTime.Instance.Translate("jailtime_help"));
+                UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_help"));
                 return;
             }
             else
             {
-                string[] oper = command.Split(' ');
+                string[] oper = commandString.Split(' ');
 
                 if (oper.Length == 1)
                 {
                     switch (oper[0])
                     {
                         case "add":
-                            RocketChat.Say(caller, JailTime.Instance.Translate("jailtime_help_add"));
+                            UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_help_add"));
                             break;
                         case "remove":
-                            RocketChat.Say(caller, JailTime.Instance.Translate("jailtime_help_remove"));
+                            UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_help_remove"));
                             break;
                         case "list":
-                            RocketChat.Say(caller, JailTime.Instance.Translate("jailtime_help_list"));
+                            UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_help_list"));
                             break;
                         case "set":
-                            RocketChat.Say(caller, JailTime.Instance.Translate("jailtime_help_set"));
+                            UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_help_set"));
                             break;
                         case "unset":
-                            RocketChat.Say(caller, JailTime.Instance.Translate("jailtime_help_unset"));
+                            UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_help_unset"));
                             break;
                         case "teleport":
-                            RocketChat.Say(caller, JailTime.Instance.Translate("jailtime_help_teleport"));
+                            UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_help_teleport"));
                             break;
                         default:
                             break;
@@ -76,7 +109,7 @@ namespace ApokPT.RocketPlugins
                             }
                             break;
                         case "remove":
-                            JailTime.Instance.removePlayer(caller, string.Join(" ", param.ToArray()));
+                            JailTime.Instance.removePlayer(pCaller, string.Join(" ", param.ToArray()));
                             break;
                         case "list":
                             switch (param[0])
@@ -90,13 +123,13 @@ namespace ApokPT.RocketPlugins
                             }
                             break;
                         case "set":
-                            JailTime.Instance.setJail(caller, string.Join(" ", param.ToArray()), caller.Position);
+                            JailTime.Instance.setJail(pCaller, string.Join(" ", param.ToArray()), pCaller.Position);
                             break;
                         case "unset":
                             JailTime.Instance.unsetJail(caller, string.Join(" ", param.ToArray()));
                             break;
                         case "teleport":
-                            JailTime.Instance.teleportToCell(caller, string.Join(" ", param.ToArray()));
+                            JailTime.Instance.teleportToCell(pCaller, string.Join(" ", param.ToArray()));
                             break;
                         default:
                             break;
@@ -104,21 +137,6 @@ namespace ApokPT.RocketPlugins
 
                 }
             }
-        }
-
-        public string Help
-        {
-            get { return "Send players to jail!"; }
-        }
-
-        public string Name
-        {
-            get { return "jail"; }
-        }
-
-        public bool RunFromConsole
-        {
-            get { return false; }
         }
     }
 }
