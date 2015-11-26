@@ -40,6 +40,7 @@ namespace ApokPT.RocketPlugins
                 REMOVED default jail cells method.
             **/
             //TODO: Make predefined cells and load already added cells.
+            //TODO: Make sure there are no clashing names in cells.
             //Cells created in game only stay in memory, one time use. But does save to Configuration.
             //injectConfiCells();
         }
