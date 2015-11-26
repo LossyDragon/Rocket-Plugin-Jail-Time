@@ -9,9 +9,9 @@ using Rocket.Unturned.Events;
 using Rocket.Unturned.Player;
 using Rocket.API.Collections;
 using Rocket.Core.Plugins;
-using System.Linq;
 using SDG.Unturned;
 using Rocket.Unturned;
+using Rocket.Core.Logging;
 
 namespace ApokPT.RocketPlugins
 {
@@ -29,43 +29,48 @@ namespace ApokPT.RocketPlugins
         protected override void Load()
         {
             Instance = this;
+            Logger.LogWarning("JailTime by ApokPT, fix by Lossy");
 
             if (JailTime.Instance.Configuration.Instance.Enabled)
             {
                 UnturnedPlayerEvents.OnPlayerRevive += RocketPlayerEvents_OnPlayerRevive;
                 U.Events.OnPlayerConnected += RocketServerEvents_OnPlayerConnected;
             }
-            injectConfiCells();
+            /**
+                REMOVED default jail cells method.
+            **/
+            //TODO: Make predefined cells and load already added cells.
+            //Cells created in game only stay in memory, one time use. But does save to Configuration.
+            //injectConfiCells();
         }
 
-        //DEBUG, Injection error when loading Rocket.
         /**
-            setJail(null, cell.Name.ToLower(), new Vector3(Convert.ToSingle(cell.X), Convert.ToSingle(cell.Y), Convert.ToSingle(cell.Z)));
+            Original: setJail(null, cell.Name.ToLower(), new Vector3(Convert.ToSingle(cell.X), Convert.ToSingle(cell.Y), Convert.ToSingle(cell.Z)));
+            setJail(null, Name.ToLower(), new Vector3(Convert.ToSingle(100), Convert.ToSingle(100), Convert.ToSingle(100)));
         **/
         private void injectConfiCells()
         {
-            string Name = "Test";
-            //foreach (CellLoc cell in Configuration.Instance.Cells)
-            //{
-                //Test cell: Name X,Y,Z
-            setJail(null, Name.ToLower(), new Vector3(Convert.ToSingle(100), Convert.ToSingle(100), Convert.ToSingle(100)));
-            //}
+            foreach (CellLoc cell in Configuration.Instance.Cells)
+            {
+                setJail(null, cell.Name.ToLower(), new Vector3(Convert.ToSingle(cell.X), Convert.ToSingle(cell.Y), Convert.ToSingle(cell.Z)));
+            }
         }
 
         public List<string> Permissions
         {
             get
             {
-                return new List<string>() { "jail.immune" };
+                return new List<string>() { "jail.immune", "jail" };
             }
         }
-        // Events
 
+        // Events
         private void RocketServerEvents_OnPlayerConnected(UnturnedPlayer player)
         {
 
-
-            if (player.IsAdmin) return;
+            //If player is Admin or has jail.immune permissions.
+            //TODO: immune is NOT working on self. 
+            if (player.IsAdmin || player.HasPermission("jail.immune")) return;
 
             if (players.ContainsKey(player.ToString()))
             {
@@ -147,7 +152,6 @@ namespace ApokPT.RocketPlugins
         }
 
         // Private Methods 
-
         private Cell getCellbyName(string jailName)
         {
 
@@ -217,6 +221,8 @@ namespace ApokPT.RocketPlugins
 
                 players.Add(target.ToString(), new Sentence(jail, jailTime, target.Position));
                 movePlayerToJail(target, jail);
+
+                //TODO: Checker to see if target already has items in Inventory. 
                 target.GiveItem(303, 1);
                 target.GiveItem(304, 1);
 
@@ -282,7 +288,7 @@ namespace ApokPT.RocketPlugins
 
         // Jail Methods
         //Set Jail
-        internal void setJail(UnturnedPlayer caller, string jailName, UnityEngine.Vector3 location)
+        internal void setJail(UnturnedPlayer caller, string jailName, Vector3 location)
         {
             if (caller != null)
             {
@@ -365,26 +371,61 @@ namespace ApokPT.RocketPlugins
         }
 
         // Arrest Methods
-        //Move selected player to jail
-        /** TODO: Research if - player.Inventory.Clear() - is still available. **/
+        //Move selected player to jail.
         private void movePlayerToJail(UnturnedPlayer player, Cell jail)
         {
-            //player.Inventory.Clear();
+            bool showWarnings = Configuration.Instance.ShowWarnings;
+            InvClear(player, showWarnings);
             player.Teleport(jail.Location, player.Rotation);
         }
 
         private void removePlayerFromJail(UnturnedPlayer player, Sentence sentence)
         {
-            //player.Inventory.Clear();
+            bool showWarnings = Configuration.Instance.ShowWarnings;
+            InvClear(player, showWarnings);
             player.Teleport(sentence.Location, player.Rotation);
         }
-        /*******************************************************/
+
+        //Method to attempt inventory clear.
+        //Credit doozzik https://github.com/doozzik/DropManager
+        //TODO: Inventory removal works, but if a player has a gun in slots 1&2, the model of said item stays visible. 
+        //Research to see if client side or server side issue. 
+        private void InvClear(UnturnedPlayer player, bool showWarnings)
+        {
+            for (byte page = 0; page < PlayerInventory.PAGES; page++)
+            {
+                byte itemCount = player.Player.inventory.getItemCount(page);
+
+                for (byte index = 0; index < itemCount; index++)
+                {
+                    try
+                    {
+                        player.Player.inventory.removeItem(page, index);
+                        index--;
+                        itemCount--;
+                    }
+                    catch (Exception e)
+                    {
+                        if (showWarnings)
+                        {
+                            Logger.LogWarning(JailTime.Instance.Translate("jailtime_inv_playerInvError") + player.CharacterName);
+                            Logger.LogWarning(JailTime.Instance.Translate("jailtime_inv_fullError") + e.Message);
+                        }
+                    }
+                }
+            }
+        }
+
         // Translations
         public override TranslationList DefaultTranslations
         {
             get
             {
                 return new TranslationList(){
+                    {"jailtime_inv_playerInvError", "JailTime: Cant clean inventory for player "},
+                    {"jailtime_inv_fullError", "JailTime: Full problem description: "},
+                    {"jailtime_noperms", "You do not have permissions to use this command." },
+                    {"jailtime_nopermslogger", " tried to use /jail command." },
                     {"jailtime_jail_notset","No cells set, please use /jail set [name] first!"},
                     {"jailtime_jail_notfound","No cell named {0} found!"},
                     {"jailtime_jail_set","New cell named {0} created where you stand!"},
