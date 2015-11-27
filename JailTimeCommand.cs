@@ -1,5 +1,4 @@
-﻿//Original Author: ApokPT - https://github.com/ApokPT
-using Rocket.Unturned.Player;
+﻿using Rocket.Unturned.Player;
 using System;
 using System.Linq;
 using Rocket.Unturned.Chat;
@@ -50,63 +49,46 @@ namespace ApokPT.RocketPlugins
         //Start.
         public void Execute(IRocketPlayer caller, string[] command)
         {
+            
             string commandString = String.Join(" ", command);
-
             UnturnedPlayer pCaller = (UnturnedPlayer)caller;
 
-            if (pCaller.IsAdmin && !JailTime.Instance.Configuration.Instance.Enabled) return;
-
-            //If called from Console
-            if (caller == null)
-            {
-                Logger.LogWarning("This command cannot be called from the console.");
-                return;
-            }
-
-            //If command is empty, ?, or help.
-            //Added Logger to help debug commands.
-            if (String.IsNullOrEmpty(commandString.Trim()) || command[0].Trim() == "?" || command[0].Trim().ToLower() == "help")
-            {
-                UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_help"));
-                Logger.LogWarning("Issued jailtime_help_add to Steam user: " + pCaller.SteamName + ".");
-                return;
-            }
-            else
-            {
                 string[] oper = commandString.Split(' ');
 
-                //Added Loggers to help debug commands. 
                 if (oper.Length == 1)
                 {
                     switch (oper[0])
                     {
                         case "add":
+
+                            if (caller == null)
+                            {
+                                Logger.LogWarning("jailtime_console_add");
+                                break;
+                            }
+
                             UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_help_add"));
-                            Logger.LogWarning("Issued jailtime_help_add to Steam user: " + pCaller.SteamName + ".");
                             break;
                         case "remove":
                             UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_help_remove"));
-                            Logger.LogWarning("Issued jailtime_help_remove to Steam user: " + pCaller.SteamName + ".");
                             break;
                         case "list":
                             UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_help_list"));
-                            Logger.LogWarning("Issued jailtime_help_list to Steam user: " + pCaller.SteamName + ".");
                             break;
                         case "set":
                             UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_help_set"));
-                            Logger.LogWarning("Issued jailtime_help_set to Steam user: " + pCaller.SteamName + ".");
                             break;
                         case "unset":
                             UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_help_unset"));
-                            Logger.LogWarning("Issued jailtime_help_unset to Steam user: " + pCaller.SteamName + ".");
+                            break;
+                        case "t":
+                            UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_help_teleport"));
                             break;
                         case "teleport":
                             UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_help_teleport"));
-                            Logger.LogWarning("Issued jailtime_help_teleport to Steam user: " + pCaller.SteamName + ".");
                             break;
                         default:
                             UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_help"));
-                            Logger.LogWarning("Issued jailtime_help to Steam user: " + pCaller.SteamName + ".");
                             break;
                     }
                     return;
@@ -155,6 +137,10 @@ namespace ApokPT.RocketPlugins
                         case "unset":
                             JailTime.Instance.unsetJail(caller, string.Join(" ", param.ToArray()));
                             break;
+                            //case 't' and 'teleport' are the same.
+                        case "t":
+                            JailTime.Instance.teleportToCell(pCaller, string.Join(" ", param.ToArray()));
+                            break;
                         case "teleport":
                             JailTime.Instance.teleportToCell(pCaller, string.Join(" ", param.ToArray()));
                             break;
@@ -165,5 +151,5 @@ namespace ApokPT.RocketPlugins
                 }
             }
         }
-    }
+    
 }

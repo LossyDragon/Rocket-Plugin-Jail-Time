@@ -1,8 +1,9 @@
-This fork of JailTime by ApokPT is a hobby of mine to better learn C# and API development for Rocket.
+#Notice 
+This is a fork of JailTime by ApokPT (https://github.com/ApokPT) and is hobby to better learn C# and API development for Rocket.
 
-The plugin is working with Rocket 4.6.4.0+ but still has one crutial feature still broken to load jail cells. 
+The plugin is working with Rocket 4.6.4.0+ but I cannot guarantee 100% of this plugint to be working (yet).
 
-#All of this is a Work-in-Progress. :)
+### >> All of this is a Work-in-Progress. :) <<
 
 # JailTime
 ### Send players to jail
@@ -17,10 +18,10 @@ Command | Action
 /jail set <cell>				 | creates a cell at callers location
 /jail unset <cell>				 | deletes the cell
 /jail list cells				 | show the list of created cells
+/jail list players				 | show the list of arrested players
 /jail add <player> <time> <cell> | add a player to <cell> for <time> seconds (if a <cell> is not defined, it will choose a random one; if <time> is not defined it will use default config time)
 /jail remove <player>			 | remove a player from jail
-/jail list players				 | show the list of arrested players
-/jail teleport <cell>			 | teleport caller to cell
+/jail t <cell>				     | teleport caller to cell
 
 ## Available Permissions
 Permission | Action
@@ -36,8 +37,3 @@ BanOnReconnect					| Ban player that reconnects while in jail.
 BanOnReconnectTime				| Time for ban on reconnect (set 0 for permanent)
 WalkDistance					| Maximum distance a player can move from the cell center
 JailTimeInSeconds 				| Default arrest time if no time is specified
- 
-## Todo List:
-* ~Allow pre-defined cells via configuration file~
-* ~/jail location to tell you the coordinates x/y/x of the location for future placement in the configuration file~
-* ~more premissions~

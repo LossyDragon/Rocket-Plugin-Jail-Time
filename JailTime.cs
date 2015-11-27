@@ -1,5 +1,4 @@
-﻿//Original Author: ApokPT - https://github.com/ApokPT
-using Steamworks;
+﻿using Steamworks;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -29,26 +28,18 @@ namespace ApokPT.RocketPlugins
         protected override void Load()
         {
             Instance = this;
-            Logger.LogWarning("JailTime by ApokPT, fix by Lossy");
+            Logger.LogWarning(JailTime.Instance.Translate("jailtime_console_display"));
 
             if (JailTime.Instance.Configuration.Instance.Enabled)
             {
                 UnturnedPlayerEvents.OnPlayerRevive += RocketPlayerEvents_OnPlayerRevive;
                 U.Events.OnPlayerConnected += RocketServerEvents_OnPlayerConnected;
             }
-            /**
-                REMOVED default jail cells method.
-            **/
-            //TODO: Make predefined cells and load already added cells.
+
             //TODO: Make sure there are no clashing names in cells.
-            //Cells created in game only stay in memory, one time use. But does save to Configuration.
-            //injectConfiCells();
+            injectConfiCells();
         }
 
-        /**
-            Original: setJail(null, cell.Name.ToLower(), new Vector3(Convert.ToSingle(cell.X), Convert.ToSingle(cell.Y), Convert.ToSingle(cell.Z)));
-            setJail(null, Name.ToLower(), new Vector3(Convert.ToSingle(100), Convert.ToSingle(100), Convert.ToSingle(100)));
-        **/
         private void injectConfiCells()
         {
             foreach (CellLoc cell in Configuration.Instance.Cells)
@@ -61,16 +52,14 @@ namespace ApokPT.RocketPlugins
         {
             get
             {
-                return new List<string>() { "jail.immune", "jail" };
+                return new List<string>() {};
             }
         }
 
-        // Events
+        //Events for On Player connected
         private void RocketServerEvents_OnPlayerConnected(UnturnedPlayer player)
         {
 
-            //If player is Admin or has jail.immune permissions.
-            //TODO: immune is NOT working on self. 
             if (player.IsAdmin || player.HasPermission("jail.immune")) return;
 
             if (players.ContainsKey(player.ToString()))
@@ -102,7 +91,7 @@ namespace ApokPT.RocketPlugins
 
         private void RocketPlayerEvents_OnPlayerRevive(UnturnedPlayer player, Vector3 position, byte angle)
         {
-            if (player.IsAdmin) return;
+            if (player.IsAdmin || player.HasPermission("jail.immune")) return;
 
             if (players.ContainsKey(player.ToString()))
             {
@@ -112,7 +101,6 @@ namespace ApokPT.RocketPlugins
         }
 
         // Fixed Update
-
         public void FixedUpdate()
         {
             if (this.State == PluginState.Loaded && players != null && players.Count != 0)
@@ -195,7 +183,7 @@ namespace ApokPT.RocketPlugins
             else
             {
 
-                if (target.IsAdmin)
+                if (target.IsAdmin || target.HasPermission("jail.immune") || target.HasPermission("jail"))
                 {
                     UnturnedChat.Say(target, JailTime.Instance.Translate("jailtime_player_immune"));
                     return;
@@ -223,7 +211,7 @@ namespace ApokPT.RocketPlugins
                 players.Add(target.ToString(), new Sentence(jail, jailTime, target.Position));
                 movePlayerToJail(target, jail);
 
-                //TODO: Checker to see if target already has items in Inventory. 
+
                 target.GiveItem(303, 1);
                 target.GiveItem(304, 1);
 
@@ -375,15 +363,13 @@ namespace ApokPT.RocketPlugins
         //Move selected player to jail.
         private void movePlayerToJail(UnturnedPlayer player, Cell jail)
         {
-            bool showWarnings = Configuration.Instance.ShowWarnings;
-            InvClear(player, showWarnings);
+            InvClear(player);
             player.Teleport(jail.Location, player.Rotation);
         }
 
         private void removePlayerFromJail(UnturnedPlayer player, Sentence sentence)
         {
-            bool showWarnings = Configuration.Instance.ShowWarnings;
-            InvClear(player, showWarnings);
+            InvClear(player);
             player.Teleport(sentence.Location, player.Rotation);
         }
 
@@ -391,7 +377,7 @@ namespace ApokPT.RocketPlugins
         //Credit doozzik https://github.com/doozzik/DropManager
         //TODO: Inventory removal works, but if a player has a gun in slots 1&2, the model of said item stays visible. 
         //Research to see if client side or server side issue. 
-        private void InvClear(UnturnedPlayer player, bool showWarnings)
+        private void InvClear(UnturnedPlayer player)
         {
             for (byte page = 0; page < PlayerInventory.PAGES; page++)
             {
@@ -407,11 +393,8 @@ namespace ApokPT.RocketPlugins
                     }
                     catch (Exception e)
                     {
-                        if (showWarnings)
-                        {
                             Logger.LogWarning(JailTime.Instance.Translate("jailtime_inv_playerInvError") + player.CharacterName);
                             Logger.LogWarning(JailTime.Instance.Translate("jailtime_inv_fullError") + e.Message);
-                        }
                     }
                 }
             }
@@ -423,7 +406,9 @@ namespace ApokPT.RocketPlugins
             get
             {
                 return new TranslationList(){
-                    {"jailtime_inv_playerInvError", "JailTime: Cant clean inventory for player "},
+                    {"jailtime_console_display", "JailTime by ApokPT, fix by Lossy" },
+                    {"jailtime_console_add", "This command can only be used in game." },
+                    {"jailtime_inv_playerInvError", "JailTime: Cant clear inventory for player "},
                     {"jailtime_inv_fullError", "JailTime: Full problem description: "},
                     {"jailtime_noperms", "You do not have permissions to use this command." },
                     {"jailtime_nopermslogger", " tried to use /jail command." },
