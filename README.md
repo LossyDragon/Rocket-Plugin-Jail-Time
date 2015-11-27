@@ -15,13 +15,13 @@ You also have the option to define if a Jailed player is banned for X seconds if
 ## Available Commands
 Command | Action
 ------- | -------
-/jail set <cell>				 | creates a cell at callers location
-/jail unset <cell>				 | deletes the cell
-/jail list cells				 | show the list of created cells
-/jail list players				 | show the list of arrested players
-/jail add <player> <time> <cell> | add a player to <cell> for <time> seconds (if a <cell> is not defined, it will choose a random one; if <time> is not defined it will use default config time)
-/jail remove <player>			 | remove a player from jail
-/jail t <cell>				     | teleport caller to cell
+/jail set -cell-				 | Creates a cell at callers location
+/jail unset -cell-				 | Deletes the cell
+/jail list cells				 | Show the list of created cells
+/jail list players				 | Show the list of arrested players
+/jail add -player- -time- -cell- | Add a player to -cell- for -time- seconds (if a -cell- is not defined, it will choose a random one; if -time- is not defined it will use default config time)
+/jail remove -player-			 | Remove a player from jail
+/jail t -cell-				     | Teleport caller to cell
 
 ## Available Permissions
 Permission | Action
