@@ -57,6 +57,8 @@ namespace ApokPT.RocketPlugins
         }
 
         //Events for On Player connected
+
+        //TODO ban on Reconnect gets player's stuck on Loading Screen.
         private void RocketServerEvents_OnPlayerConnected(UnturnedPlayer player)
         {
 
@@ -359,17 +361,25 @@ namespace ApokPT.RocketPlugins
             }
         }
 
-        // Arrest Methods
+        //Arrest Methods//
+
         //Move selected player to jail.
         private void movePlayerToJail(UnturnedPlayer player, Cell jail)
         {
-            InvClear(player);
+            if (JailTime.Instance.Configuration.Instance.StripWeapons)
+            {
+                InvClear(player);
+            }
             player.Teleport(jail.Location, player.Rotation);
         }
 
+        //Remove player from jail
         private void removePlayerFromJail(UnturnedPlayer player, Sentence sentence)
         {
-            InvClear(player);
+            if (JailTime.Instance.Configuration.Instance.StripWeapons)
+            {
+                InvClear(player);
+            }
             player.Teleport(sentence.Location, player.Rotation);
         }
 

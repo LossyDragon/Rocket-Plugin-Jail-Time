@@ -12,6 +12,7 @@ namespace ApokPT.RocketPlugins
         public bool KillInsteadOfTeleport;
         public ulong WalkDistance;
         public bool Enabled;
+        public bool StripWeapons;
 
         //Warning incase plugin is loaded using another map that is not Washington
         public string tutorial;
@@ -31,6 +32,7 @@ namespace ApokPT.RocketPlugins
             KillInsteadOfTeleport = false;
             WalkDistance = 5;
             Enabled = true;
+            StripWeapons = true;
 
             tutorial = "Default cell is for map WASHINGTON, on top of the Seattle tower.";
             tutorial2 = "DO NOT USE -Tower- if not using Washington map";
