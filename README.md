@@ -34,6 +34,8 @@ Option | Action
 ------- | -------
 KillInsteadOfTeleport			| Kill player that move away from the cell instead of teleporting them.
 BanOnReconnect					| Ban player that reconnects while in jail.
-BanOnReconnectTime				| Time for ban on reconnect (set 0 for permanent)
-WalkDistance					| Maximum distance a player can move from the cell center
-JailTimeInSeconds 				| Default arrest time if no time is specified
+BanOnReconnectTime				| Time for ban on reconnect (set 0 for permanent).
+WalkDistance					| Maximum distance a player can move from the cell center.
+JailTimeInSeconds 				| Default arrest time if no time is specified.
+StripInventory					| When a player is jailed, inventory will be stipped.
+GiveClothes						| When a player is jailed, clothes will be given.

@@ -28,10 +28,10 @@ namespace ApokPT.RocketPlugins
             get { return "Send players to Jail!"; }
         }
 
-        //Return syntax (Overriden).
+        //Return syntax.
         public string Syntax
         {
-            get { return "NULL"; }
+            get { return "<add | remove | list | set | unset | t>"; }
         }
 
         //Aliases
@@ -59,14 +59,11 @@ namespace ApokPT.RocketPlugins
                 {
                     switch (oper[0])
                     {
+                    //TODO Debug.
+                    case "ping":
+                            Logger.Log("Ping: " + pCaller.Ping);
+                            break;
                         case "add":
-
-                            if (caller == null)
-                            {
-                                Logger.LogWarning("jailtime_console_add");
-                                break;
-                            }
-
                             UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_help_add"));
                             break;
                         case "remove":

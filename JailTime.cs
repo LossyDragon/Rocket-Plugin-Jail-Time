@@ -15,7 +15,7 @@ using Rocket.Core.Logging;
 namespace ApokPT.RocketPlugins
 {
 
-    class JailTime : RocketPlugin<JailTimeConfiguration>
+    public class JailTime : RocketPlugin<JailTimeConfiguration>
     {
 
         private Dictionary<string, Cell> cells = new Dictionary<string, Cell>();
@@ -25,6 +25,7 @@ namespace ApokPT.RocketPlugins
         // Singleton
         public static JailTime Instance;
 
+        //Load
         protected override void Load()
         {
             Instance = this;
@@ -32,22 +33,32 @@ namespace ApokPT.RocketPlugins
 
             if (JailTime.Instance.Configuration.Instance.Enabled)
             {
-                UnturnedPlayerEvents.OnPlayerRevive += RocketPlayerEvents_OnPlayerRevive;
-                U.Events.OnPlayerConnected += RocketServerEvents_OnPlayerConnected;
+                UnturnedPlayerEvents.OnPlayerRevive += Events_OnPlayerRevive;
+                U.Events.OnPlayerConnected += Events_OnPlayerConnected;
             }
 
-            //TODO: Make sure there are no clashing names in cells.
             injectConfiCells();
         }
 
+        //Unload
+        protected override void Unload()
+        {
+            UnturnedPlayerEvents.OnPlayerRevive -= Events_OnPlayerRevive;
+            U.Events.OnPlayerConnected -= Events_OnPlayerConnected;
+        }
+
+        //Load cells from configuration file.
+        //TODO: Make sure there are no clashing names in cells.
         private void injectConfiCells()
         {
             foreach (CellLoc cell in Configuration.Instance.Cells)
             {
                 setJail(null, cell.Name.ToLower(), new Vector3(Convert.ToSingle(cell.X), Convert.ToSingle(cell.Y), Convert.ToSingle(cell.Z)));
+
             }
         }
 
+        //Permissions (Overridden)
         public List<string> Permissions
         {
             get
@@ -59,7 +70,7 @@ namespace ApokPT.RocketPlugins
         //Events for On Player connected
 
         //TODO ban on Reconnect gets player's stuck on Loading Screen.
-        private void RocketServerEvents_OnPlayerConnected(UnturnedPlayer player)
+        private void Events_OnPlayerConnected(UnturnedPlayer player)
         {
 
             if (player.IsAdmin || player.HasPermission("jail.immune")) return;
@@ -71,14 +82,17 @@ namespace ApokPT.RocketPlugins
                 {
                     removePlayerFromJail(player, players[player.ToString()]);
                     players.Remove(player.ToString());
-                    if (Configuration.Instance.BanOnReconnectTime > 0)
-                    {
-                        player.Ban(JailTime.Instance.Translate("jailtime_ban_time", Configuration.Instance.BanOnReconnectTime), Configuration.Instance.BanOnReconnectTime);
-                    }
-                    else
-                    {
-                        player.Ban(JailTime.Instance.Translate("jailtime_ban"), Configuration.Instance.BanOnReconnectTime);
-                    }
+
+                    //Send player over to Player Component (JailTimePlayer) to handle ban on reconnect.
+
+                    //TODO Debug.
+                    Logger.Log("Sending " + player.SteamName + " to ban on reconnect.");
+                    Logger.Log("Ping: " + player.Ping);
+
+                    //JailTimePlayer jailtimeplayer = GetComponent<JailTimePlayer>();
+                    JailTimePlayer jailtimeplayer = new JailTimePlayer();
+                    jailtimeplayer.SetBan(player);
+
                 }
                 else
                 {
@@ -91,7 +105,8 @@ namespace ApokPT.RocketPlugins
             }
         }
 
-        private void RocketPlayerEvents_OnPlayerRevive(UnturnedPlayer player, Vector3 position, byte angle)
+        //Event for On Player Revive (Death or Suicide).
+        private void Events_OnPlayerRevive(UnturnedPlayer player, Vector3 position, byte angle)
         {
             if (player.IsAdmin || player.HasPermission("jail.immune")) return;
 
@@ -184,8 +199,8 @@ namespace ApokPT.RocketPlugins
             }
             else
             {
-
-                if (target.IsAdmin || target.HasPermission("jail.immune") || target.HasPermission("jail"))
+                //if (target.IsAdmin || target.HasPermission("jail.immune") || target.HasPermission("jail"))
+                if (target.IsAdmin)
                 {
                     UnturnedChat.Say(target, JailTime.Instance.Translate("jailtime_player_immune"));
                     return;
@@ -212,10 +227,6 @@ namespace ApokPT.RocketPlugins
 
                 players.Add(target.ToString(), new Sentence(jail, jailTime, target.Position));
                 movePlayerToJail(target, jail);
-
-
-                target.GiveItem(303, 1);
-                target.GiveItem(304, 1);
 
                 UnturnedChat.Say(target, JailTime.Instance.Translate("jailtime_player_arrest_msg", jailTime));
                 UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_player_arrested", target.CharacterName, jail.Name));
@@ -356,7 +367,7 @@ namespace ApokPT.RocketPlugins
 
                 if (jailsString != "") jailsString = jailsString.Remove(jailsString.Length - 2) + ".";
 
-                UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_jail_list", jailsString));
+                UnturnedChat.Say(caller, Instance.Translate("jailtime_jail_list", jailsString));
                 return;
             }
         }
@@ -366,9 +377,17 @@ namespace ApokPT.RocketPlugins
         //Move selected player to jail.
         private void movePlayerToJail(UnturnedPlayer player, Cell jail)
         {
-            if (JailTime.Instance.Configuration.Instance.StripWeapons)
+            //If StripWeapons is TRUE, Remove player's inventory.
+            if (Instance.Configuration.Instance.StripInventory)
             {
                 InvClear(player);
+
+                //if GiveClothes is TRUE, jail clothes will be given (to wear).
+                if (JailTime.Instance.Configuration.Instance.GiveClothes)
+                {
+                    player.GiveItem(303, 1);
+                    player.GiveItem(304, 1);
+                }
             }
             player.Teleport(jail.Location, player.Rotation);
         }
@@ -376,17 +395,13 @@ namespace ApokPT.RocketPlugins
         //Remove player from jail
         private void removePlayerFromJail(UnturnedPlayer player, Sentence sentence)
         {
-            if (JailTime.Instance.Configuration.Instance.StripWeapons)
-            {
-                InvClear(player);
-            }
             player.Teleport(sentence.Location, player.Rotation);
         }
 
         //Method to attempt inventory clear.
         //Credit doozzik https://github.com/doozzik/DropManager
         //TODO: Inventory removal works, but if a player has a gun in slots 1&2, the model of said item stays visible. 
-        //Research to see if client side or server side issue. 
+        //Visible on server side to other players
         private void InvClear(UnturnedPlayer player)
         {
             for (byte page = 0; page < PlayerInventory.PAGES; page++)
@@ -417,17 +432,18 @@ namespace ApokPT.RocketPlugins
             {
                 return new TranslationList(){
                     {"jailtime_console_display", "JailTime by ApokPT, fix by Lossy" },
-                    {"jailtime_console_add", "This command can only be used in game." },
                     {"jailtime_inv_playerInvError", "JailTime: Cant clear inventory for player "},
                     {"jailtime_inv_fullError", "JailTime: Full problem description: "},
                     {"jailtime_noperms", "You do not have permissions to use this command." },
                     {"jailtime_nopermslogger", " tried to use /jail command." },
+
                     {"jailtime_jail_notset","No cells set, please use /jail set [name] first!"},
                     {"jailtime_jail_notfound","No cell named {0} found!"},
                     {"jailtime_jail_set","New cell named {0} created where you stand!"},
                     {"jailtime_jail_exists","Cell named {0} already exists!"},
                     {"jailtime_jail_unset","Cell named {0} deleted!"},
                     {"jailtime_jail_list","Jail Cells: {0}"},
+
                     {"jailtime_player_immune","That player cannot be arrested!"},
                     {"jailtime_player_in_jail","Player {0} already in jail!"},
                     {"jailtime_player_arrested","Player {0} was arrested in {1} cell!"},
@@ -438,6 +454,7 @@ namespace ApokPT.RocketPlugins
                     {"jailtime_player_arrest_msg","You have been arrested for {0} seconds!"},
                     {"jailtime_player_release_msg","You have been released!"},
                     {"jailtime_player_back_msg","Get back in your cell!"},
+
                     {"jailtime_help","/jail commands: add, remove, set, unset, list, teleport"},
                     {"jailtime_help_add","use /jail add <player> <time> <cell> - to arrest a player, if no <cell> uses a random one"},
                     {"jailtime_help_remove","use /jail remove <player> - to release a player"},
@@ -445,6 +462,7 @@ namespace ApokPT.RocketPlugins
                     {"jailtime_help_set","use /jail set <cell> - to set a new jail cell"},
                     {"jailtime_help_unset","use /jail unset <cell> - to delete a jail cell"},
                     {"jailtime_help_teleport","use /jail teleport <cell> - to teleport to a cell"},
+
                     {"jailtime_ban","You have been banned for disconnecting while in Jail!"},
                     {"jailtime_ban_time","You have been banned for {0} seconds for disconnecting while in Jail!"}
                 };
