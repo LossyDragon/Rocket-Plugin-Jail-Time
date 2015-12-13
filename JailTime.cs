@@ -67,8 +67,11 @@ namespace ApokPT.RocketPlugins
         {
             foreach (CellLoc cell in Configuration.Instance.Cells)
             {
+                //This removes the cells in list in order for Load(). But DOES NOT remove players from Sentence.
                 cells.Remove(cell.Name.ToLower());
             }
+
+            //TODO: Should Sentence be removed during Unload? 
         }
 
         //Permissions (Overridden)
@@ -397,6 +400,7 @@ namespace ApokPT.RocketPlugins
                 //if GiveClothes is TRUE, jail clothes will be given (to wear).
                 if (JailTime.Instance.Configuration.Instance.GiveClothes)
                 {
+                    //TODO: if player constantly dies/suicides, they can get infinite clothes. 
                     player.GiveItem(303, 1);
                     player.GiveItem(304, 1);
                 }

@@ -92,8 +92,17 @@ namespace ApokPT.RocketPlugins
                 }
                 else
                 {
+                //TODO, fix command if they do the following, with no time defined... /jail add lossy <cell>
 
-                    string[] param = string.Join(" ", oper.Skip(1).ToArray()).Split(' ');
+                /*
+                   [Error] An error occured while executing command /jail add org36 tower: System.FormatException: Input string was not in the correct format
+                    at System.UInt32.Parse (System.String s) [0x00000] in <filename unknown>:0 
+                    at System.Convert.ToUInt32 (System.String value) [0x00000] in <filename unknown>:0 
+                    at ApokPT.RocketPlugins.JailTimeCommand.Execute (IRocketPlayer caller, System.String[] command) [0x00000] in <filename unknown>:0 
+                    at Rocket.Unturned.Commands.UnturnedCommandBase.executeCommand (IRocketCommand command, CSteamID caller, System.String commandString) [0x00000] in <filename unknown>:0 
+                */
+
+                string[] param = string.Join(" ", oper.Skip(1).ToArray()).Split(' ');
 
                     switch (oper[0])
                     {
