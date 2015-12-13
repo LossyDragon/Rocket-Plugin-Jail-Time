@@ -20,8 +20,8 @@ namespace ApokPT.RocketPlugins
             banPlayer = true;
             playerData = player;
 
-            //TODO Debug.
-            Logger.Log(playerData.SteamName + "in SetBan class.");
+            // Debug.
+            //Logger.Log(playerData.SteamName + "in SetBan class.");
 
             if (banPlayer)
             {
@@ -32,12 +32,12 @@ namespace ApokPT.RocketPlugins
                     if (ping == 0)
                         ping = 1;
 
-                    //TODO Debug.
-                    Logger.Log("Player's ping: " + ping);
-                    Logger.Log("Time Now: " + startTime);
-                    Logger.Log("Total Seconds: " +(DateTime.Now - startTime).TotalSeconds);
-                    Logger.Log("Config Set Grace: " + JailTime.Instance.Configuration.Instance.GracePeriod);
-                    Logger.Log("Grace: " + (JailTime.Instance.Configuration.Instance.GracePeriod + (ping * 10)));
+                    //Debug.
+                    //Logger.Log("Player's ping: " + ping);
+                    //Logger.Log("Time Now: " + startTime);
+                    //Logger.Log("Total Seconds: " +(DateTime.Now - startTime).TotalSeconds);
+                    //Logger.Log("Config Set Grace: " + JailTime.Instance.Configuration.Instance.GracePeriod);
+                    //Logger.Log("Grace: " + (JailTime.Instance.Configuration.Instance.GracePeriod + (ping * 10)));
 
 
                     //TODO try and fix delay.

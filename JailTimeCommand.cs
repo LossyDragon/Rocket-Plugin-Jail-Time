@@ -59,10 +59,10 @@ namespace ApokPT.RocketPlugins
                 {
                     switch (oper[0])
                     {
-                    //TODO Debug.
-                    case "ping":
-                            Logger.Log("Ping: " + pCaller.Ping);
-                            break;
+                    //Debug.
+                    //case "ping":
+                            //Logger.Log("Ping: " + pCaller.Ping);
+                            //break;
                         case "add":
                             UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_help_add"));
                             break;
