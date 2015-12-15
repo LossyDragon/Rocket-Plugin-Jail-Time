@@ -11,6 +11,7 @@ using Rocket.Core.Plugins;
 using SDG.Unturned;
 using Rocket.Unturned;
 using Rocket.Core.Logging;
+using System.Linq;
 
 namespace ApokPT.RocketPlugins
 {
@@ -20,6 +21,7 @@ namespace ApokPT.RocketPlugins
 
         private Dictionary<string, Cell> cells = new Dictionary<string, Cell>();
         private Dictionary<string, Sentence> players = new Dictionary<string, Sentence>();
+        //private Dictionary<string, Sentence> buffer = new Dictionary<string, Sentence>(); //Temp Dictionary.
 
 
         // Singleton
@@ -52,7 +54,6 @@ namespace ApokPT.RocketPlugins
         }
 
         //Load cells from configuration file.
-        //TODO: Make sure there are no clashing names in cells.
         private void injectConfiCells()
         {
             foreach (CellLoc cell in Configuration.Instance.Cells)
@@ -65,13 +66,19 @@ namespace ApokPT.RocketPlugins
         //Unload cells from configuration file
         private void uninjectConfiCells()
         {
-            foreach (CellLoc cell in Configuration.Instance.Cells)
-            {
-                //This removes the cells in list in order for Load(). But DOES NOT remove players from Sentence.
-                cells.Remove(cell.Name.ToLower());
-            }
+            //Should Sentence be removed during Unload...
 
-            //TODO: Should Sentence be removed during Unload? 
+            //TODO: "Out of Sync" error when trying to individually removing players from jail. Will need to study a better approach. 
+            //buffer = players; //Copy players Dictionary to buffer.
+            /*foreach (KeyValuePair<string, Sentence> pl in buffer)
+            {
+                removePlayer(null, pl.Key);
+            }*/
+
+            //Flush each Dictionary...
+            cells.Clear();
+            //players.Clear();
+            //buffer.Clear();
         }
 
         //Permissions (Overridden)
@@ -85,7 +92,6 @@ namespace ApokPT.RocketPlugins
 
         //Events for On Player connected
 
-        //TODO ban on Reconnect gets player's stuck on Loading Screen.
         private void Events_OnPlayerConnected(UnturnedPlayer player)
         {
 
@@ -96,25 +102,25 @@ namespace ApokPT.RocketPlugins
 
                 if (JailTime.Instance.Configuration.Instance.BanOnReconnect)
                 {
-                    removePlayerFromJail(player, players[player.ToString()]);
-                    players.Remove(player.ToString());
+                    //removePlayerFromJail(player, players[player.ToString()]);
+                    //players.Remove(player.ToString());
 
                     //Send player over to Player Component (JailTimePlayer) to handle ban on reconnect.
 
                     //Debug.
-                    //Logger.Log("Sending " + player.SteamName + " to ban on reconnect.");
-                    //Logger.Log("Ping: " + player.Ping);
+                    Logger.Log("Sending " + player.SteamName + " to ban on reconnect.");
+                    Logger.Log("Ping: " + player.Ping);
 
-                    //JailTimePlayer jailtimeplayer = GetComponent<JailTimePlayer>();
-                    JailTimePlayer jailtimeplayer = new JailTimePlayer();
+                    JailTimePlayer jailtimeplayer = player.GetComponent<JailTimePlayer>();
                     jailtimeplayer.SetBan(player);
+                    players.Remove(player.ToString());
 
                 }
                 else
                 {
                     if (!(players[player.ToString()].End <= DateTime.Now))
                     {
-                        movePlayerToJail(player, players[player.ToString()].Cell);
+                        movePlayerToJail_OnPlayerRevive_Connect(player, players[player.ToString()].Cell);
                         UnturnedChat.Say(player, JailTime.Instance.Translate("jailtime_player_back_msg"));
                     }
                 }
@@ -128,10 +134,21 @@ namespace ApokPT.RocketPlugins
 
             if (players.ContainsKey(player.ToString()))
             {
-                movePlayerToJail(player, players[player.ToString()].Cell);
+                movePlayerToJail_OnPlayerRevive_Connect(player, players[player.ToString()].Cell);
                 UnturnedChat.Say(player, JailTime.Instance.Translate("jailtime_player_back_msg"));
             }
         }
+
+        //This function will handle OnPlayerRevive/Connected to re-strip(if enabled) player and sending back to jail without dupping clothes.
+        private void movePlayerToJail_OnPlayerRevive_Connect(UnturnedPlayer player, Cell jail)
+        {
+            if (Instance.Configuration.Instance.StripInventory)
+            {
+                InvClear(player);
+            }
+            player.Teleport(jail.Location, player.Rotation);
+        }
+
 
         // Fixed Update
         public void FixedUpdate()
@@ -216,7 +233,7 @@ namespace ApokPT.RocketPlugins
             else
             {
                 if (target.IsAdmin || target.HasPermission("jail.immune") || target.HasPermission("jail"))
-                {
+                    {
                     UnturnedChat.Say(target, JailTime.Instance.Translate("jailtime_player_immune"));
                     return;
                 }
@@ -266,12 +283,16 @@ namespace ApokPT.RocketPlugins
                 removePlayerFromJail(target, players[target.ToString()]);
                 UnturnedChat.Say(target, JailTime.Instance.Translate("jailtime_player_release_msg"));
 
-                if (caller != null) UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_player_released", target.CharacterName));
+                if (caller != null)
+                    UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_player_released", target.CharacterName));
+
                 players.Remove(target.ToString());
             }
             else
             {
-                if (caller != null) UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_player_notfound", playerName));
+                if (caller != null)
+                    UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_player_notfound", playerName));
+
                 return;
             }
 
@@ -400,7 +421,6 @@ namespace ApokPT.RocketPlugins
                 //if GiveClothes is TRUE, jail clothes will be given (to wear).
                 if (JailTime.Instance.Configuration.Instance.GiveClothes)
                 {
-                    //TODO: if player constantly dies/suicides, they can get infinite clothes. 
                     player.GiveItem(303, 1);
                     player.GiveItem(304, 1);
                 }
@@ -414,9 +434,8 @@ namespace ApokPT.RocketPlugins
             player.Teleport(sentence.Location, player.Rotation);
         }
 
-        //Method to attempt inventory clear.
-        //Credit doozzik https://github.com/doozzik/DropManager
-        //TODO: Inventory removal works, but if a player has a gun in slots 1&2, the model of said item stays visible. 
+        //Method to attempt inventory clear. | Credit doozzik https://github.com/doozzik/DropManager
+        //Inventory removal works, but if a player has a gun in slots 1&2, the model of said item stays visible. 
         private void InvClear(UnturnedPlayer player)
         {
             for (byte page = 0; page < PlayerInventory.PAGES; page++)
@@ -449,8 +468,6 @@ namespace ApokPT.RocketPlugins
                     {"jailtime_console_display", "JailTime by ApokPT, fix by Lossy" },
                     {"jailtime_inv_playerInvError", "JailTime: Cant clear inventory for player "},
                     {"jailtime_inv_fullError", "JailTime: Full problem description: "},
-                    {"jailtime_noperms", "You do not have permissions to use this command." }, //Not used anymore.
-                    {"jailtime_nopermslogger", " tried to use /jail command." }, //Not used anymore.
 
                     {"jailtime_jail_notset","No cells set, please use /jail set [name] first!"},
                     {"jailtime_jail_notfound","No cell named {0} found!"},
@@ -479,7 +496,7 @@ namespace ApokPT.RocketPlugins
                     {"jailtime_help_teleport","use /jail teleport <cell> - to teleport to a cell"},
 
                     {"jailtime_ban","You have been banned for disconnecting while in Jail!"},
-                    {"jailtime_ban_time","You have been banned for {0} seconds for disconnecting while in Jail!"}
+                    {"jailtime_ban_time","You have been banned temporarily for disconnecting while in Jail!"}
                 };
             }
         }
