@@ -107,12 +107,12 @@ namespace ApokPT.RocketPlugins
                         {
                             
 
-                            int tmp;
+                            uint tmp;
 
-                            if (int.TryParse(param[1], out tmp))
+                            if (uint.TryParse(param[1], out tmp))
                             {
                                 // Arrest player in random cell for defined time - /jail add apok 20
-                                JailTime.Instance.addPlayer(caller, param[0], "", Convert.ToUInt32(param[1]));
+                                JailTime.Instance.addPlayer(caller, param[0], "", tmp);
                             }
                             else
                             {
@@ -123,12 +123,12 @@ namespace ApokPT.RocketPlugins
                         else
                         {
 
-                            int tmp2;
+                            uint tmp2;
 
-                            if (int.TryParse(param[1], out tmp2))
+                            if (uint.TryParse(param[1], out tmp2))
                             {
                                 // Arrest player in specific cell for defined time - /jail add apok 20 cell 1
-                                JailTime.Instance.addPlayer(caller, param[0], string.Join(" ", param.Skip(2).ToArray()), Convert.ToUInt32(param[1]));
+                                JailTime.Instance.addPlayer(caller, param[0], string.Join(" ", param.Skip(2).ToArray()), tmp2);
                             }                     
                             else
                             {
