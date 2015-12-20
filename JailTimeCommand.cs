@@ -92,36 +92,51 @@ namespace ApokPT.RocketPlugins
                 }
                 else
                 {
-                //TODO, fix command if they do the following, with no time defined... /jail add lossy <cell>
-
-                /*
-                   [Error] An error occured while executing command /jail add org36 tower: System.FormatException: Input string was not in the correct format
-                    at System.UInt32.Parse (System.String s) [0x00000] in <filename unknown>:0 
-                    at System.Convert.ToUInt32 (System.String value) [0x00000] in <filename unknown>:0 
-                    at ApokPT.RocketPlugins.JailTimeCommand.Execute (IRocketPlayer caller, System.String[] command) [0x00000] in <filename unknown>:0 
-                    at Rocket.Unturned.Commands.UnturnedCommandBase.executeCommand (IRocketCommand command, CSteamID caller, System.String commandString) [0x00000] in <filename unknown>:0 
-                */
 
                 string[] param = string.Join(" ", oper.Skip(1).ToArray()).Split(' ');
 
                     switch (oper[0])
                     {
                         case "add":
-                            if (param.Length == 1)
-                            {
-                                // Arrest player in random cell for default time - /jail add apok
-                                JailTime.Instance.addPlayer(caller, string.Join(" ", param.ToArray()));
-                            }
-                            else if (param.Length == 2)
+                        if (param.Length == 1)
+                        {
+                            // Arrest player in random cell for default time - /jail add apok
+                            JailTime.Instance.addPlayer(caller, string.Join(" ", param.ToArray()));
+                        }
+                        else if (param.Length == 2)
+                        {
+                            
+
+                            int tmp;
+
+                            if (int.TryParse(param[1], out tmp))
                             {
                                 // Arrest player in random cell for defined time - /jail add apok 20
                                 JailTime.Instance.addPlayer(caller, param[0], "", Convert.ToUInt32(param[1]));
                             }
                             else
                             {
+                                //Arrest player in specific cell, thats single-worded, for DEFAULT time - /jail add lossy cell
+                                JailTime.Instance.addPlayer(caller, param[0], param[1]);
+                            }
+                        }
+                        else
+                        {
+
+                            int tmp2;
+
+                            if (int.TryParse(param[1], out tmp2))
+                            {
                                 // Arrest player in specific cell for defined time - /jail add apok 20 cell 1
                                 JailTime.Instance.addPlayer(caller, param[0], string.Join(" ", param.Skip(2).ToArray()), Convert.ToUInt32(param[1]));
+                            }                     
+                            else
+                            {
+                                //Botch job, ;)
+                                //Arrest player in specific cell, thats two-worded, for DEFAULT time - /jail add lossy cell 1
+                                JailTime.Instance.addPlayer(caller, param[0], string.Join(" ", param.Skip(1).ToArray()));
                             }
+                        }
                             break;
                         case "remove":
                             JailTime.Instance.removePlayer(pCaller, string.Join(" ", param.ToArray()));
