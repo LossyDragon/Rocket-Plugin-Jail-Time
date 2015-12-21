@@ -64,17 +64,21 @@ namespace ApokPT.RocketPlugins
         private void uninjectConfiCells()
         {
             //Should Sentence be removed during Unload...
-            List<string> keys = new List<string>(players.Keys);
-
-            foreach (string key in keys)
+            if (JailTime.Instance.Configuration.Instance.ReleasePlayerOnUnload)
             {
-                removePlayer(null, key);
-            }
+                List<string> keys = new List<string>(players.Keys);
 
-            //Flush both dictionaries, and local List<>.
-            cells.Clear();
-            players.Clear();
-            keys.Clear();
+                foreach (string key in keys)
+                {
+                    removePlayer(null, key);
+                }
+
+                //Flush both dictionaries, and local List<>.
+                cells.Clear();
+                players.Clear();
+                keys.Clear();
+
+            }
         }
 
         //Permissions (Overridden)
