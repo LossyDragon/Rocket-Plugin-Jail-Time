@@ -18,11 +18,8 @@ namespace ApokPT.RocketPlugins
 
     public class JailTime : RocketPlugin<JailTimeConfiguration>
     {
-
         private Dictionary<string, Cell> cells = new Dictionary<string, Cell>();
         private Dictionary<string, Sentence> players = new Dictionary<string, Sentence>();
-        //private Dictionary<string, Sentence> buffer = new Dictionary<string, Sentence>(); //Temp Dictionary.
-
 
         // Singleton
         public static JailTime Instance;
@@ -43,14 +40,14 @@ namespace ApokPT.RocketPlugins
             injectConfiCells();
         }
 
-        //Unload
+        //Rocket Unload.
         protected override void Unload()
         {
-            UnturnedPlayerEvents.OnPlayerRevive -= Events_OnPlayerRevive;
-            U.Events.OnPlayerConnected -= Events_OnPlayerConnected;
-
             //This function will unload cells from configuration.
             uninjectConfiCells();
+
+            UnturnedPlayerEvents.OnPlayerRevive -= Events_OnPlayerRevive;
+            U.Events.OnPlayerConnected -= Events_OnPlayerConnected;
         }
 
         //Load cells from configuration file.
@@ -63,22 +60,21 @@ namespace ApokPT.RocketPlugins
             }
         }
 
-        //Unload cells from configuration file
+        //(Rocket unload) Unload players in jail to last location and flush the dictionaries.
         private void uninjectConfiCells()
         {
             //Should Sentence be removed during Unload...
+            List<string> keys = new List<string>(players.Keys);
 
-            //TODO: "Out of Sync" error when trying to individually removing players from jail. Will need to study a better approach. 
-            //buffer = players; //Copy players Dictionary to buffer.
-            /*foreach (KeyValuePair<string, Sentence> pl in buffer)
+            foreach (string key in keys)
             {
-                removePlayer(null, pl.Key);
-            }*/
+                removePlayer(null, key);
+            }
 
-            //Flush each Dictionary...
+            //Flush both dictionaries, and local List<>.
             cells.Clear();
-            //players.Clear();
-            //buffer.Clear();
+            players.Clear();
+            keys.Clear();
         }
 
         //Permissions (Overridden)
@@ -146,11 +142,12 @@ namespace ApokPT.RocketPlugins
             {
                 InvClear(player);
             }
+
             player.Teleport(jail.Location, player.Rotation);
         }
 
 
-        // Fixed Update
+        //Fixed Update
         public void FixedUpdate()
         {
             if (this.State == PluginState.Loaded && players != null && players.Count != 0)
@@ -190,13 +187,15 @@ namespace ApokPT.RocketPlugins
             }
         }
 
-        // Private Methods 
+        //Private Methods 
+        //Get cells by name.
         private Cell getCellbyName(string jailName)
         {
 
             return cells.ContainsKey(jailName) ? cells[jailName] : null;
         }
 
+        //Get random cell.
         private Cell getRandomCell()
         {
             if (cells.Count >= 0)
@@ -206,11 +205,11 @@ namespace ApokPT.RocketPlugins
                 return cells[keys[rand.Next(cells.Count)]];
 
             }
+
             return null;
         }
 
-
-        // Player Methods
+        //Player Methods
         //Adding a player
         internal void addPlayer(IRocketPlayer caller, string playerName, string jailName = "", uint jailTime = 0)
         {
@@ -233,7 +232,7 @@ namespace ApokPT.RocketPlugins
             else
             {
                 if (target.IsAdmin || target.HasPermission("jail.immune") || target.HasPermission("jail"))
-                    {
+                {
                     UnturnedChat.Say(target, JailTime.Instance.Translate("jailtime_player_immune"));
                     return;
                 }
@@ -295,7 +294,6 @@ namespace ApokPT.RocketPlugins
 
                 return;
             }
-
         }
 
         //List players
@@ -323,7 +321,6 @@ namespace ApokPT.RocketPlugins
             }
         }
 
-
         // Jail Methods
         //Set Jail
         internal void setJail(UnturnedPlayer caller, string jailName, Vector3 location)
@@ -343,6 +340,7 @@ namespace ApokPT.RocketPlugins
                 Configuration.Instance.Cells.Add(new CellLoc(jailName, location.x, location.y, location.z));
                 Configuration.Save();
             }
+
             cells.Add(jailName.ToLower(), new Cell(jailName, location));
         }
 
@@ -409,7 +407,6 @@ namespace ApokPT.RocketPlugins
         }
 
         //Arrest Methods//
-
         //Move selected player to jail.
         private void movePlayerToJail(UnturnedPlayer player, Cell jail)
         {

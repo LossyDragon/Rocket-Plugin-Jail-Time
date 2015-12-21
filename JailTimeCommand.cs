@@ -4,7 +4,6 @@ using System.Linq;
 using Rocket.Unturned.Chat;
 using Rocket.API;
 using System.Collections.Generic;
-using Rocket.Core.Logging;
 
 namespace ApokPT.RocketPlugins
 {
@@ -59,10 +58,6 @@ namespace ApokPT.RocketPlugins
                 {
                     switch (oper[0])
                     {
-                    //Debug.
-                    //case "ping":
-                            //Logger.Log("Ping: " + pCaller.Ping);
-                            //break;
                         case "add":
                             UnturnedChat.Say(caller, JailTime.Instance.Translate("jailtime_help_add"));
                             break;
@@ -158,7 +153,7 @@ namespace ApokPT.RocketPlugins
                         case "unset":
                             JailTime.Instance.unsetJail(caller, string.Join(" ", param.ToArray()));
                             break;
-                            //case 't' and 'teleport' are the same.
+                            //case(s) 't' and 'teleport' are the same.
                         case "t":
                             JailTime.Instance.teleportToCell(pCaller, string.Join(" ", param.ToArray()));
                             break;
