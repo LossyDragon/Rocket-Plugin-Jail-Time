@@ -9,12 +9,6 @@ namespace ApokPT.RocketPlugins
 {
     public class JailTimeCommand : IRocketCommand
     {
-        //Allowed from Rocket console.
-        public bool AllowFromConsole
-        {
-            get { return false; }
-        }
-
         //Plugin name.
         public string Name
         {
@@ -43,6 +37,12 @@ namespace ApokPT.RocketPlugins
         public List<string> Permissions
         {
             get { return new List<string>() { "jail" }; }
+        }
+
+        //Rocket 4.8.0.0, Allow caller from Console|Player|Both.
+        public AllowedCaller AllowedCaller
+        {
+            get { return AllowedCaller.Player; }
         }
 
         //Start.
