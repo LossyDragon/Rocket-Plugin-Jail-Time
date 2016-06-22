@@ -1,9 +1,9 @@
 #Notice 
-This is a fork of JailTime by ApokPT (https://github.com/ApokPT) and is hobby to better learn C# and API development for Rocket.
+This is a fork of JailTime by ApokPT (https://github.com/ApokPT) and was hobby to better learn C# and API development for Rocket.
 
-The plugin is working with Rocket 4.6.4.0+ but I cannot guarantee 100% of this plugint to be working (yet).
+The plugin should work with Rocket 4.9.7.0+, but I cannot guarantee 100% of this plugin to be working.
 
-### >> All of this is a Work-in-Progress. :) <<
+### >> This plugin is no longer in development from me! <<
 
 # JailTime
 ### Send players to jail

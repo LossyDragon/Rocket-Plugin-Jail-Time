@@ -466,38 +466,39 @@ namespace ApokPT.RocketPlugins
             get
             {
                 return new TranslationList(){
-                    {"jailtime_console_display", "JailTime by ApokPT, fix by Lossy" },
-                    {"jailtime_inv_playerInvError", "JailTime: Cant clear inventory for player "},
+                    //Some log outputs.
+                    {"jailtime_console_display", "JailTime by ApokPT. Updated by Lossy. " },
+                    {"jailtime_inv_playerInvError", "JailTime: Cant clear inventory for player. "},
                     {"jailtime_inv_fullError", "JailTime: Full problem description: "},
-
-                    {"jailtime_jail_notset","No cells set, please use /jail set [name] first!"},
-                    {"jailtime_jail_notfound","No cell named {0} found!"},
-                    {"jailtime_jail_set","New cell named {0} created where you stand!"},
-                    {"jailtime_jail_exists","Cell named {0} already exists!"},
-                    {"jailtime_jail_unset","Cell named {0} deleted!"},
-                    {"jailtime_jail_list","Jail Cells: {0}"},
-
-                    {"jailtime_player_immune","That player cannot be arrested!"},
-                    {"jailtime_player_in_jail","Player {0} already in jail!"},
-                    {"jailtime_player_arrested","Player {0} was arrested in {1} cell!"},
-                    {"jailtime_player_released","Player {0} released from jail!"},
-                    {"jailtime_player_list","Players: {0}"},
-                    {"jailtime_player_list_clear","Jail cells are getting dusty!"},
-                    {"jailtime_player_notfound","No player found named {0}!"},
-                    {"jailtime_player_arrest_msg","You have been arrested for {0} seconds!"},
-                    {"jailtime_player_release_msg","You have been released!"},
-                    {"jailtime_player_back_msg","Get back in your cell!"},
-
-                    {"jailtime_help","/jail commands: add, remove, set, unset, list, teleport"},
-                    {"jailtime_help_add","use /jail add <player> <time> <cell> - to arrest a player, if no <cell> uses a random one"},
-                    {"jailtime_help_remove","use /jail remove <player> - to release a player"},
-                    {"jailtime_help_list","use /jail list players or /jail list cells"},
-                    {"jailtime_help_set","use /jail set <cell> - to set a new jail cell"},
-                    {"jailtime_help_unset","use /jail unset <cell> - to delete a jail cell"},
-                    {"jailtime_help_teleport","use /jail teleport <cell> - to teleport to a cell"},
-
-                    {"jailtime_ban","You have been banned for disconnecting while in Jail!"},
-                    {"jailtime_ban_time","You have been banned temporarily for disconnecting while in Jail!"}
+                    //Jail information
+                    {"jailtime_jail_notset","No cells set, please use /jail set [name] first! "},
+                    {"jailtime_jail_notfound","No cell named {0} found! "},
+                    {"jailtime_jail_set","New cell named {0} created where you stand! "},
+                    {"jailtime_jail_exists","Cell named {0} already exists! "},
+                    {"jailtime_jail_unset","Cell named {0} deleted! "},
+                    {"jailtime_jail_list","Jail Cells: {0} "},
+                    //Jail player information.
+                    {"jailtime_player_immune","That player cannot be arrested! "},
+                    {"jailtime_player_in_jail","Player {0} already in jail! "},
+                    {"jailtime_player_arrested","Player {0} was arrested in {1} cell! "},
+                    {"jailtime_player_released","Player {0} released from jail! "},
+                    {"jailtime_player_list","Players: {0} "},
+                    {"jailtime_player_list_clear","Jail cells are getting dusty! "},
+                    {"jailtime_player_notfound","No player found named {0}! "},
+                    {"jailtime_player_arrest_msg","You have been arrested for {0} seconds! "},
+                    {"jailtime_player_release_msg","You have been released! "},
+                    {"jailtime_player_back_msg","Get back in your cell! "},
+                    //Command Help
+                    {"jailtime_help","/jail commands: add, remove, set, unset, list, teleport "},
+                    {"jailtime_help_add","use /jail add <player> <time> <cell> - to arrest a player, if no <cell> uses a random one "},
+                    {"jailtime_help_remove","use /jail remove <player> - to release a player "},
+                    {"jailtime_help_list","use /jail list players or /jail list cells "},
+                    {"jailtime_help_set","use /jail set <cell> - to set a new jail cell "},
+                    {"jailtime_help_unset","use /jail unset <cell> - to delete a jail cell "},
+                    {"jailtime_help_teleport","use /jail teleport <cell> - to teleport to a cell "},
+                    //Bans
+                    {"jailtime_ban","You have been banned for disconnecting while in Jail! "},
+                    {"jailtime_ban_time","You have been banned temporarily for disconnecting while in Jail! "}
                 };
             }
         }

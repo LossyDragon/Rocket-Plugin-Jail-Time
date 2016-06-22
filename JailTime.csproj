@@ -31,7 +31,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug to Server|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\..\Desktop\Unturned\Servers\MyFirstRocketServer\Rocket\Plugins\</OutputPath>
+    <OutputPath>\\LOSSYSERVER\Users\Administrator\Documents\steamCMD\unturned\Servers\MyFirstRocketServer\Rocket\Plugins\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
